@@ -1,17 +1,28 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 export const sendEmail = async (to, subject, text) => {
+    const emailUser = process.env.EMAIL_USER;
+    const emailPass = process.env.EMAIL_PASS;
+    if (!emailUser || !emailPass) {
+        throw new Error("Email configuration missing. Set EMAIL_USER and EMAIL_PASS in .env");
+    }
     try {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: EMAIL_USER,
-                pass: EMAIL_PASS,
+                user: emailUser,
+                pass: emailPass,
             },
         });
 
         await transporter.sendMail({
-            from: `"CreatorConnect" <${EMAIL_USER}>`, 
+            from: `"CreatorConnect" <${emailUser}>`, 
             to: to,
             subject: subject,
             text: text
