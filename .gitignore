@@ -1,0 +1,33 @@
+
+node_modules/
+.env
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+
+# Vite
+.vite/
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# Test coverage
+coverage/
+
+# Misc
+*.local
+*.swp
+*.swo
+tmp/
