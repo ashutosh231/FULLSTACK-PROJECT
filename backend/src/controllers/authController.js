@@ -1,4 +1,6 @@
+import User from "../models/User.js";
 import { registerUser, loginUser } from "../services/authServices.js";
+import { getMessagesBetween } from "../services/chatService.js";
 import generateToken from "../utils/generateToken.js";
 import { saveOtp } from "../services/otpServices.js";
 import { sendEmail } from "../sendEmail.js";
@@ -57,6 +59,31 @@ export const logout = (req, res) => {
   res.json({ message: "Logged out" });
 };
 
+// Get all users (for chat - exclude current user)
+export const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({ _id: { $ne: req.user._id } })
+      .select("name email")
+      .lean();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get chat history with another user
+export const getMessages = async (req, res) => {
+  try {
+    const otherUserId = req.query.with;
+    if (!otherUserId) {
+      return res.status(400).json({ message: "Missing 'with' query parameter" });
+    }
+    const messages = await getMessagesBetween(req.user._id.toString(), otherUserId);
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // Send OTP to email for registration
 export const sendOtpController = async (req, res) => {

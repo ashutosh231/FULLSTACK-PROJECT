@@ -15,6 +15,18 @@ export const getCurrentUser = async () => {
   return res.data;
 };
 
+export const getUsers = async () => {
+  const res = await axiosInstance.get("/auth/users");
+  return res.data;
+};
+
+export const getMessages = async (otherUserId) => {
+  const res = await axiosInstance.get("/auth/messages", {
+    params: { with: otherUserId },
+  });
+  return res.data;
+};
+
 export const logoutUser = async () => {
   await axiosInstance.post("/auth/logout");
 }

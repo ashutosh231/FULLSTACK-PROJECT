@@ -1,14 +1,16 @@
 import express from "express";
-import { signup, login ,logout ,sendOtpController ,verifyOtpController} from "../controllers/authController.js";
+import { signup, login, logout, sendOtpController, verifyOtpController, getUsers, getMessages } from "../controllers/authController.js";
 import protect, { optionalAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
-router.get("/me", protect, (req, res) => {
+router.get("/me", optionalAuth, (req, res) => {
   res.json(req.user || null);
 });
+router.get("/users", protect, getUsers);
+router.get("/messages", protect, getMessages);
 router.post("/logout", logout);
 router.post("/send-otp", sendOtpController);
 router.post("/verify-otp", verifyOtpController);
