@@ -8,6 +8,20 @@ export const setupSocket = (io) => {
       onlineUsers[userId] = socket.id;
     });
 
+    socket.on("typing", ({ userId, userName, receiverId }) => {
+      const receiverSocketId = onlineUsers[String(receiverId)];
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("user_typing", { userId, userName });
+      }
+    });
+
+    socket.on("typing_stop", ({ userId, receiverId }) => {
+      const receiverSocketId = onlineUsers[String(receiverId)];
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("user_stopped_typing", { userId });
+      }
+    });
+
     socket.on("send_message", async (msg) => {
       const { sender, receiver, content } = msg;
 
@@ -21,6 +35,7 @@ export const setupSocket = (io) => {
         const payload = {
           _id: message._id,
           sender: message.sender.toString(),
+          receiver: String(receiver),
           content: message.text,
           timestamp: message.createdAt,
         };

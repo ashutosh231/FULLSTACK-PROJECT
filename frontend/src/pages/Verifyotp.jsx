@@ -1,15 +1,15 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyOtp } from "../api/authApi";
-import { useAuth } from "../context/AuthContext";
+import { setUser } from "../store/slices/authSlice";
 import { successToast, errorToast } from "../utils/toast";
 import Button from "../components/Button";
 
 const VerifyOtp = () => {
-
   const location = useLocation();
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const dispatch = useDispatch();
 
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,7 +30,7 @@ const VerifyOtp = () => {
         otp
       });
 
-      setUser(data);
+      dispatch(setUser(data));
       successToast("Account created successfully!");
 
       navigate("/dashboard");

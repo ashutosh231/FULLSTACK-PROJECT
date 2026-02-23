@@ -3,7 +3,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import { AuthProvider } from "./context/AuthContext";
+import AuthInit from "./components/AuthInit";
 import Layout from "./components/Layout";
 import { Toaster } from "react-hot-toast";
 import VerifyOtp from "./pages/Verifyotp";
@@ -11,7 +11,7 @@ import VerifyOtp from "./pages/Verifyotp";
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
+      <AuthInit>
         <Toaster position="top-right" />
         <Routes>
 
@@ -33,7 +33,7 @@ function App() {
           />
 
         </Routes>
-      </AuthProvider>
+      </AuthInit>
     </BrowserRouter>
   );
 }

@@ -1,19 +1,17 @@
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Chat from "../components/Chat";
-import { useAuth } from "../context/AuthContext";
-import { useState, useEffect } from "react";
-import { getUsers } from "../api/authApi";
+import { fetchUsers, setSelectedUser } from "../store/slices/chatSlice";
 
 const Dashboard = () => {
-  const { user } = useAuth();
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const user = useSelector((state) => state.auth.user);
+  const { users, selectedUser } = useSelector((state) => state.chat);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!user) return;
-    getUsers()
-      .then((data) => setUsers(data))
-      .catch(() => setUsers([]));
-  }, [user]);
+    dispatch(fetchUsers());
+  }, [user, dispatch]);
 
   return (
     <div className="flex h-[calc(100vh-8rem)] rounded-2xl overflow-hidden shadow-xl border border-slate-200/60 bg-white">
@@ -30,7 +28,7 @@ const Dashboard = () => {
               <button
                 key={u._id}
                 type="button"
-                onClick={() => setSelectedUser(u)}
+                onClick={() => dispatch(setSelectedUser(u))}
                 className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 ${
                   selectedUser?._id === u._id
                     ? "bg-indigo-500 text-white shadow-md"

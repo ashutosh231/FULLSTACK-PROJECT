@@ -1,15 +1,18 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../api/authApi";
+import { logout } from "../store/slices/authSlice";
+
 const Navbar = () => {
-  const { user, setUser } = useAuth();
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-const handleLogout = async () => {
-  await logoutUser();
-  setUser(null);
-  navigate("/login");
-};
+  const handleLogout = async () => {
+    await logoutUser();
+    dispatch(logout());
+    navigate("/login");
+  };
 
   return (
     <nav className="bg-white shadow-md">

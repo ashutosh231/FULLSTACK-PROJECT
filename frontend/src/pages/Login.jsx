@@ -1,19 +1,18 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { loginUser } from "../api/authApi";
-import { useAuth } from "../context/AuthContext";
+import { setUser } from "../store/slices/authSlice";
 import { useNavigate, Link } from "react-router-dom";
 import { successToast, errorToast } from "../utils/toast";
 import Button from "../components/Button";
-const Login = () => {
 
+const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
   const [loading, setLoading] = useState(false);
-
-
-  const { setUser } = useAuth();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -28,7 +27,7 @@ const Login = () => {
     e.preventDefault();
 try {
   const data = await loginUser(formData);
-  setUser(data);
+  dispatch(setUser(data));
   successToast("Login successful!");
   navigate("/dashboard");
 } catch (error) {
