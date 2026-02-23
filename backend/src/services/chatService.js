@@ -2,9 +2,12 @@ import mongoose from "mongoose";
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
 
-export const sendMessage = async (senderId, receiverId, text) => {
-  if (!senderId || !receiverId || !text) {
-    throw new Error("Missing required fields");
+export const sendMessage = async (senderId, receiverId, text, image = null) => {
+  if (!senderId || !receiverId) {
+    throw new Error("Missing sender or receiver");
+  }
+  if (!text && !image) {
+    throw new Error("Message must have text or image");
   }
 
   const senderObjId = new mongoose.Types.ObjectId(senderId);
@@ -23,7 +26,8 @@ export const sendMessage = async (senderId, receiverId, text) => {
   const message = await Message.create({
     conversationId: conversation._id,
     sender: senderObjId,
-    text: String(text).trim(),
+    text: text ? String(text).trim() : "",
+    image: image || undefined,
     seenBy: [senderObjId],
   });
 
@@ -53,6 +57,7 @@ export const getMessagesBetween = async (userId, otherUserId) => {
     _id: m._id,
     sender: m.sender.toString(),
     content: m.text,
+    image: m.image || null,
     timestamp: m.createdAt,
   }));
 };

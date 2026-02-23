@@ -13,6 +13,10 @@ const messageSchema = new mongoose.Schema(
     text: {
       type: String,
     },
+    image: {
+      type: String,
+      default: null,
+    },
     seenBy: [
       {
         type: mongoose.Schema.Types.ObjectId,

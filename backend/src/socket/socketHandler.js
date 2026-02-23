@@ -23,20 +23,30 @@ export const setupSocket = (io) => {
     });
 
     socket.on("send_message", async (msg) => {
-      const { sender, receiver, content } = msg;
+      const { sender, receiver, content, image } = msg;
 
-      if (!sender || !receiver || !content) {
-        socket.emit("send_error", { message: "Missing sender, receiver, or content" });
+      if (!sender || !receiver) {
+        socket.emit("send_error", { message: "Missing sender or receiver" });
+        return;
+      }
+      if (!content && !image) {
+        socket.emit("send_error", { message: "Message must have text or image" });
         return;
       }
 
       try {
-        const { message } = await sendMessage(sender, receiver, content);
+        const { message } = await sendMessage(
+          sender,
+          receiver,
+          content || "",
+          image || null
+        );
         const payload = {
           _id: message._id,
           sender: message.sender.toString(),
           receiver: String(receiver),
           content: message.text,
+          image: message.image || null,
           timestamp: message.createdAt,
         };
 
