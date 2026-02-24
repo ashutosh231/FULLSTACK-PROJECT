@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import ChatPage from "./pages/ChatPage";
+import Assets from "./pages/Assets";
+import Plans from "./pages/Plans";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AuthInit from "./components/AuthInit";
 import Layout from "./components/Layout";
@@ -56,6 +59,36 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ChatPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/assets"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Assets />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plans"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <Plans />
                 </Layout>
               </ProtectedRoute>
             }

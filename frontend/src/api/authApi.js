@@ -29,7 +29,12 @@ export const getMessages = async (otherUserId) => {
 
 export const logoutUser = async () => {
   await axiosInstance.post("/auth/logout");
-}
+};
+
+export const purchasePlan = async (plan) => {
+  const res = await axiosInstance.post("/auth/purchase-plan", { plan });
+  return res.data;
+};
 
 export const sendOtp = async (data) => {
   const res = await axiosInstance.post("/auth/send-otp", data);
@@ -38,5 +43,15 @@ export const sendOtp = async (data) => {
 
 export const verifyOtp = async (data) => {
   const res = await axiosInstance.post("/auth/verify-otp", data);
+  return res.data;
+};
+
+export const createRazorpayOrder = async (plan) => {
+  const res = await axiosInstance.post("/auth/create-razorpay-order", { plan });
+  return res.data;
+};
+
+export const verifyRazorpayPayment = async (data) => {
+  const res = await axiosInstance.post("/auth/verify-razorpay-payment", data);
   return res.data;
 };

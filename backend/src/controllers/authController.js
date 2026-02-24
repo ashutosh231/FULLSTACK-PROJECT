@@ -6,6 +6,7 @@ import { saveOtp } from "../services/otpServices.js";
 import { sendEmail } from "../sendEmail.js";
 import { verifyOtpService } from "../services/otpServices.js";
 import { generateOtp } from "../services/otpServices.js";
+import crypto from "crypto";
 
 // Register new user
 export const signup = async (req, res) => {
@@ -19,8 +20,10 @@ export const signup = async (req, res) => {
 
     res.status(201).json({
       id: user._id,
+      _id: user._id,
       name: user.name,
-      email: user.email
+      email: user.email,
+      tokens: user.tokens,
     });
 
   } catch (error) {
@@ -40,10 +43,11 @@ export const login = async (req, res) => {
 
     res.json({
       id: user._id,
+      _id: user._id,
       name: user.name,
-      email: user.email
+      email: user.email,
+      tokens: user.tokens,
     });
-
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -80,6 +84,98 @@ export const getMessages = async (req, res) => {
     }
     const messages = await getMessagesBetween(req.user._id.toString(), otherUserId);
     res.json(messages);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const PLANS = {
+  basic: { tokens: 10, name: "Basic", amountPaise: 10000 }, // Rs 100
+  pro: { tokens: 50, name: "Pro", amountPaise: 29900 },
+  platinum: { tokens: 200, name: "Platinum", amountPaise: 79900 },
+};
+
+export const purchasePlan = async (req, res) => {
+  try {
+    const { plan } = req.body;
+    const planConfig = PLANS[plan];
+    if (!planConfig) {
+      return res.status(400).json({ message: "Invalid plan. Use basic, pro, or platinum" });
+    }
+    if (planConfig.amountPaise > 0) {
+      return res.status(400).json({ message: "Use checkout for paid plans" });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $inc: { tokens: planConfig.tokens } },
+      { new: true }
+    ).select("-password");
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const createRazorpayOrder = async (req, res) => {
+  try {
+    const { plan } = req.body;
+    const planConfig = PLANS[plan];
+    if (!planConfig || planConfig.amountPaise <= 0) {
+      return res.status(400).json({ message: "Invalid paid plan. Use basic, pro, or platinum" });
+    }
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keyId || !keySecret) {
+      console.error("Razorpay keys missing", { keyId, keySecret });
+      return res.status(500).json({ message: "Razorpay not configured" });
+    }
+    // Debug log
+    console.log("Creating Razorpay order", { plan, amount: planConfig.amountPaise });
+    const Razorpay = (await import("razorpay")).default;
+    const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+    // Shorten receipt to avoid Razorpay 40 char limit
+    const shortReceipt = `plan_${plan}_${Date.now()}_${req.user._id.toString().slice(-6)}`;
+    const order = await razorpay.orders.create({
+      amount: planConfig.amountPaise,
+      currency: "INR",
+      receipt: shortReceipt,
+      notes: { plan },
+    });
+    res.json({
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      keyId,
+      plan,
+    });
+  } catch (error) {
+    console.error("Razorpay order error:", error);
+    res.status(500).json({ message: error.message, stack: error.stack });
+  }
+};
+
+export const verifyRazorpayPayment = async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, plan } = req.body;
+    const planConfig = PLANS[plan];
+    if (!planConfig) {
+      return res.status(400).json({ message: "Invalid plan" });
+    }
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keySecret) {
+      return res.status(500).json({ message: "Razorpay not configured" });
+    }
+    const body = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const expected = crypto.createHmac("sha256", keySecret).update(body).digest("hex");
+    if (expected !== razorpay_signature) {
+      return res.status(400).json({ message: "Payment verification failed" });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $inc: { tokens: planConfig.tokens } },
+      { new: true }
+    ).select("-password");
+    res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

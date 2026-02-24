@@ -14,12 +14,19 @@ const Navbar = () => {
     navigate("/login");
   };
 
+  const navLinkClass = (isActive) =>
+    `px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+      isActive
+        ? "text-cyan-400 bg-cyan-500/10"
+        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+    }`;
+
   return (
     <nav className="glass fixed top-0 left-0 right-0 z-50 animate-fade-in">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center gap-4">
         <Link
-          to="/"
-          className="flex items-center gap-2 group"
+          to="/dashboard"
+          className="flex items-center gap-2 group shrink-0"
         >
           <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent transition-all duration-300 group-hover:from-cyan-300 group-hover:to-teal-300">
             CreatorConnect
@@ -28,14 +35,38 @@ const Navbar = () => {
         </Link>
 
         {user ? (
-          <div className="flex items-center gap-3 animate-fade-in">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700/50">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-sm font-medium text-slate-200">{user.name}</span>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <nav className="hidden sm:flex items-center gap-1">
+              <Link to="/dashboard" className={navLinkClass(false)}>
+                Dashboard
+              </Link>
+              <Link to="/chat" className={navLinkClass(false)}>
+                Chat
+              </Link>
+              <Link to="/assets" className={navLinkClass(false)}>
+                Assets
+              </Link>
+              <Link to="/plans" className={navLinkClass(false)}>
+                Plans
+              </Link>
+            </nav>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                <span className="text-amber-400 font-semibold text-sm">
+                  {user.tokens ?? 0}
+                </span>
+                <span className="text-slate-500 text-xs hidden xs:inline">tokens</span>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-sm font-medium text-slate-200 truncate max-w-[120px]">
+                  {user.name}
+                </span>
+              </div>
             </div>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/40 transition-all duration-300"
+              className="px-4 py-2 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/40 transition-all duration-300 shrink-0"
             >
               Logout
             </button>
